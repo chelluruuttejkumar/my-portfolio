@@ -1,191 +1,589 @@
 "use client";
 
+// =================================================// ======================================================
+
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
   motion,
   AnimatePresence,
   useScroll,
   useSpring,
 } from "framer-motion";
-import { useEffect, useState } from "react";
-import emailjs from "emailjs-com";
-import { Moon, Sun, X } from "lucide-react";
 
-// ✅ Glass Card Component
+import {
+  Moon,
+  Sun,
+  X,
+  Mic,
+  Send,
+  Minus,
+} from "lucide-react";
+
+// ======================================================
+// ✅ GLASS COMPONENT
+// ======================================================
+
 function Glass({
   children,
-  className,
+  className = "",
 }: {
   children: React.ReactNode;
   className?: string;
 }) {
   return (
     <motion.div
-      whileHover={{ scale: 1.05, rotateX: 5, rotateY: 5 }}
-      transition={{ type: "spring", stiffness: 200 }}
-      className={`${className || ""}
-      rounded-3xl
-      backdrop-blur-xl
-      border
-      border-white/10
-      bg-white/5
-      shadow-2xl
-      p-6`}
+      whileHover={{
+        scale: 1.01,
+        y: -2,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 18,
+      }}
+      className={`
+        ${className}
+        relative
+        overflow-hidden
+        rounded-[32px]
+        border
+        border-white/15
+        bg-white/[0.08]
+        backdrop-blur-[25px]
+        shadow-[0_8px_32px_rgba(0,0,0,0.35)]
+      `}
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-white/5 to-transparent pointer-events-none" />
+
+      <div className="absolute inset-[1px] rounded-[31px] border border-white/10 pointer-events-none" />
+
       {children}
     </motion.div>
   );
 }
 
-type ProjectType = {
+// ======================================================
+// ✅ TYPES
+// ======================================================
+
+type Project = {
   title: string;
   desc: string;
   image: string;
 };
 
+// ======================================================
+// ✅ MAIN COMPONENT
+// ======================================================
+
 export default function Portfolio() {
-  const [loading, setLoading] = useState(true);
-  const [text, setText] = useState("");
-  const [index, setIndex] = useState(0);
 
-  // ✅ Dark Mode
-  const [darkMode, setDarkMode] = useState(true);
+  // ======================================================
+  // ✅ STATES
+  // ======================================================
 
-  // ✅ Project Popup
+  const [darkMode, setDarkMode] =
+    useState(true);
+
   const [selectedProject, setSelectedProject] =
-    useState<ProjectType | null>(null);
+    useState<Project | null>(null);
+
+  const [text, setText] =
+    useState("");
+
+  const [index, setIndex] =
+    useState(0);
+
+  const [cursor, setCursor] =
+    useState({
+      x: 0,
+      y: 0,
+    });
+
+  // ✅ AI STATES
+
+  const [aiOpen, setAiOpen] =
+    useState(false);
+
+  const [minimized, setMinimized] =
+    useState(false);
+
+  const [typing, setTyping] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [input, setInput] =
+    useState("");
+
+  const [listening, setListening] =
+    useState(false);
+
+  // ✅ CHAT STATE
+
+  const [messages, setMessages] =
+    useState<any[]>([
+      {
+        role: "assistant",
+        content:
+          "👋 Hi Uttej! I'm your AI Portfolio Assistant.",
+      },
+    ]);
+
+  // ======================================================
+  // ✅ REFS
+  // ======================================================
+
+  const aiRef =
+    useRef<HTMLDivElement>(null);
+
+  const messagesEndRef =
+    useRef<HTMLDivElement>(null);
+
+  // ======================================================
+  // ✅ SCROLL
+  // ======================================================
+
+  const { scrollYProgress } =
+    useScroll();
+
+  const scaleX =
+    useSpring(scrollYProgress);
+
+  // ======================================================
+  // ✅ DATA
+  // ======================================================
 
   const roles = [
     "Software Engineer",
-    "Java Developer",
     "React Developer",
+    "Creative Frontend Developer",
+    "UI Animator",
   ];
 
-  // ✅ Scroll Animation
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress);
+  const skills = [
+    "ReactJS",
+    "Java",
+    "Tailwind CSS",
+    "TypeScript",
+    "Framer Motion",
+    "HTML5",
+    "CSS3",
+    "SQL",
+  ];
 
-  // ✅ Loader
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1800);
-    return () => clearTimeout(timer);
-  }, []);
+  const projects: Project[] = [
+    {
+      title: "BankingDomain",
+      desc:
+        "FEBA (Finacle E-Banking Application) is a digital banking platform that provides secure online and mobile banking services, enabling customers to perform transactions and manage their accounts anytime, anywhere.",
+      image: "/p5.jpg",
+    },
 
-  // ✅ Typing Animation
+    {
+      title: "Portfolio",
+      desc:
+        "Futuristic glassmorphism portfolio showcasing projects, skills, animations, and AI assistant integration.",
+      image: "/p2.jpg",
+    },
+
+    {
+      title: "Spotify Clone",
+      desc:
+        "Responsive music streaming interface inspired by Spotify with modern UI and smooth user experience..",
+      image: "/P4.png",
+    },
+
+    {
+      title: "Calculator",
+      desc:
+        "Calculator UI.",
+      image: "/P3.png",
+    },
+  ];
+
+  // ======================================================
+  // ✅ ROLE TYPING
+  // ======================================================
+
   useEffect(() => {
+
     let i = 0;
 
     const typing = setInterval(() => {
-      setText(roles[index].slice(0, i + 1));
+
+      setText(
+        roles[index].slice(0, i + 1)
+      );
+
       i++;
 
-      if (i === roles[index].length) {
+      if (
+        i === roles[index].length
+      ) {
+
         clearInterval(typing);
 
         setTimeout(() => {
-          setIndex((prev) => (prev + 1) % roles.length);
+
+          setIndex(
+            (prev) =>
+              (prev + 1) %
+              roles.length
+          );
+
           setText("");
+
         }, 1000);
       }
+
     }, 70);
 
-    return () => clearInterval(typing);
+    return () =>
+      clearInterval(typing);
+
   }, [index]);
 
-  // ✅ Cursor Glow
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
+  // ======================================================
+  // ✅ CURSOR EFFECT
+  // ======================================================
 
   useEffect(() => {
-    const move = (e: MouseEvent) => {
+
+    const move = (
+      e: MouseEvent
+    ) => {
+
       setCursor({
         x: e.clientX,
         y: e.clientY,
       });
     };
 
-    window.addEventListener("mousemove", move);
+    window.addEventListener(
+      "mousemove",
+      move
+    );
 
-    return () => window.removeEventListener("mousemove", move);
+    return () =>
+      window.removeEventListener(
+        "mousemove",
+        move
+      );
+
   }, []);
 
-  // ✅ Email Function
-  const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // ======================================================
+  // ✅ AUTO SCROLL CHAT
+  // ======================================================
 
-    const form = e.currentTarget;
+  useEffect(() => {
 
-    emailjs
-      .sendForm(
-        "service_atyalxg",
-        "template_052cwpr",
-        form,
-        "qDxulvQQBkObSX-lb"
-      )
-      .then(() => {
-        alert("✅ Message Sent Successfully!");
-        form.reset();
-      })
-      .catch((err: unknown) => {
-        console.error(err);
-        alert("❌ Failed to Send Message!");
+    messagesEndRef.current
+      ?.scrollIntoView({
+        behavior: "smooth",
       });
+
+  }, [messages]);
+
+  // ======================================================
+  // ✅ CLOSE CHAT ON OUTSIDE CLICK
+  // ======================================================
+
+  useEffect(() => {
+
+    const handleClickOutside = (
+      event: MouseEvent
+    ) => {
+
+      if (
+        aiRef.current &&
+        !aiRef.current.contains(
+          event.target as Node
+        )
+      ) {
+
+        setAiOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+
+  }, []);
+
+  // ======================================================
+  // ✅ SEND MESSAGE
+  // ======================================================
+
+  const sendMessage = async () => {
+
+    if (!input.trim()) return;
+
+    const userMessage = {
+      role: "user",
+      content: input,
+    };
+
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+    ]);
+
+    const currentInput = input;
+
+    setInput("");
+
+    setTyping(true);
+
+    setLoading(true);
+
+    try {
+
+      const response =
+        await fetch("/api/chat", {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            message: currentInput,
+            history: messages,
+          }),
+        });
+
+      const data =
+        await response.json();
+
+      setTimeout(() => {
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              data.reply,
+          },
+        ]);
+
+        setTyping(false);
+
+      }, 1000);
+
+    } catch (error) {
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "❌ AI Backend Error.",
+        },
+      ]);
+
+      setTyping(false);
+    }
+
+    setLoading(false);
   };
 
-  // ✅ Skills
-  const skills = [
-    "Java",
-    "React",
-    "Next.js",
-    "SQL",
-    "TypeScript",
-    "Tailwind CSS",
-    "Finacle",
-    "Framer Motion",
-  ];
+  // ======================================================
+  // ✅ SEND VOICE MESSAGE
+  // ======================================================
 
-  // ✅ Projects
-  const projects: ProjectType[] = [
-    {
-      title: "Bank App",
-      desc: "Core banking solution using Finacle.",
-      image: "/p1.png",
-    },
-    {
-      title: "Employee System",
-      desc: "Employee management application.",
-      image: "/p2.png",
-    },
-    {
-      title: "E-Commerce",
-      desc: "Shopping platform with cart functionality.",
-      image: "/p3.png",
-    },
-    {
-      title: "Task Manager",
-      desc: "Task tracking productivity application.",
-      image: "/p4.png",
-    },
-  ];
+  const sendVoiceMessage = async (
+    transcript: string
+  ) => {
+
+    if (!transcript.trim()) return;
+
+    const userMessage = {
+      role: "user",
+      content: transcript,
+    };
+
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+    ]);
+
+    setTyping(true);
+
+    try {
+
+      const response =
+        await fetch("/api/chat", {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            message: transcript,
+            history: messages,
+          }),
+        });
+
+      const data =
+        await response.json();
+
+      setTimeout(() => {
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              data.reply,
+          },
+        ]);
+
+        setTyping(false);
+
+      }, 1000);
+
+    } catch {
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "❌ Voice AI Error.",
+        },
+      ]);
+
+      setTyping(false);
+    }
+  };
+
+  // ======================================================
+  // ✅ VOICE INPUT
+  // ======================================================
+
+  const startVoice = () => {
+
+    try {
+
+      // @ts-ignore
+      const SpeechRecognition =
+        // @ts-ignore
+        window.SpeechRecognition ||
+        // @ts-ignore
+        window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+
+        alert(
+          "Speech Recognition not supported."
+        );
+
+        return;
+      }
+
+      const recognition =
+        new SpeechRecognition();
+
+      recognition.continuous =
+        false;
+
+      recognition.interimResults =
+        false;
+
+      recognition.lang = "en-US";
+
+      recognition.start();
+
+      setListening(true);
+
+      recognition.onresult =
+        (event: any) => {
+
+          const transcript =
+            event.results[0][0]
+              .transcript;
+
+          setInput(transcript);
+
+          setListening(false);
+
+          setTimeout(() => {
+
+            sendVoiceMessage(
+              transcript
+            );
+
+          }, 500);
+        };
+
+      recognition.onspeechend =
+        () => {
+
+          recognition.stop();
+
+          setListening(false);
+        };
+
+      recognition.onerror =
+        () => {
+
+          setListening(false);
+        };
+
+    } catch {
+
+      setListening(false);
+    }
+  };
+
+  // ======================================================
+  // ✅ UI
+  // ======================================================
 
   return (
+
     <div
       className={`min-h-screen overflow-x-hidden transition-all duration-500 ${
         darkMode
           ? "bg-black text-white"
-          : "bg-white text-black"
+          : "bg-slate-100 text-black"
       }`}
     >
-      {/* ✅ Animated Background */}
+
+      {/* ✅ BACKGROUND */}
+
       <motion.div
-        className="fixed inset-0 -z-10"
+        className="fixed inset-0 -z-30"
         animate={{
           background: darkMode
             ? [
-                "linear-gradient(120deg,#020617,#0f172a,#1e293b)",
-                "linear-gradient(120deg,#0f172a,#1e40af,#020617)",
+                "linear-gradient(135deg,#020617,#111827)",
+                "linear-gradient(135deg,#111827,#1d4ed8)",
               ]
             : [
-                "linear-gradient(120deg,#dbeafe,#ffffff,#bfdbfe)",
-                "linear-gradient(120deg,#ffffff,#bfdbfe,#dbeafe)",
+                "linear-gradient(135deg,#ffffff,#dbeafe)",
+                "linear-gradient(135deg,#dbeafe,#ffffff)",
               ],
         }}
         transition={{
@@ -194,297 +592,694 @@ export default function Portfolio() {
         }}
       />
 
-      {/* ✅ Cursor Glow */}
+      {/* ✅ GLOW */}
+
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+
+        <div className="absolute top-20 left-20 w-72 h-72 rounded-full bg-cyan-500/20 blur-[120px]" />
+
+        <div className="absolute bottom-20 right-20 w-72 h-72 rounded-full bg-purple-500/20 blur-[120px]" />
+
+      </div>
+
+      {/* ✅ CURSOR */}
+
       <motion.div
-        className="fixed w-12 h-12 rounded-full bg-blue-500/20 blur-2xl pointer-events-none z-50"
+        className="fixed w-32 h-32 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none z-50"
         animate={{
-          x: cursor.x - 20,
-          y: cursor.y - 20,
+          x: cursor.x - 60,
+          y: cursor.y - 60,
         }}
       />
 
-      {/* ✅ Scroll Bar */}
+      {/* ✅ PROGRESS BAR */}
+
       <motion.div
         style={{ scaleX }}
-        className="fixed top-0 left-0 right-0 h-1 bg-blue-500 origin-left z-50"
+        className="fixed top-0 left-0 right-0 h-1 bg-cyan-400 origin-left z-50"
       />
 
-      {/* ✅ Loader */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            className="fixed inset-0 bg-black flex items-center justify-center z-50"
-            exit={{ opacity: 0 }}
-          >
-            <motion.h1
-              animate={{
-                scale: [1, 1.2, 1],
+      {/* ✅ NAVBAR */}
+
+      <nav className="fixed top-0 w-full z-40 px-6 py-5 bg-black/20 backdrop-blur-xl border-b border-white/10">
+
+        <div className="flex justify-between items-center">
+
+          <h1 className="text-2xl font-black tracking-widest">
+            UTTEJ
+          </h1>
+
+          <div className="hidden md:flex gap-8 items-center">
+
+            <a href="#skills">
+              Skills
+            </a>
+
+            <a href="#projects">
+              Projects
+            </a>
+
+            <a href="#beyond">
+              Beyond
+            </a>
+
+            <motion.button
+              whileHover={{
+                scale: 1.05,
               }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.5,
+              whileTap={{
+                scale: 0.95,
               }}
-              className="text-4xl font-bold text-white"
+              onClick={() =>
+                setDarkMode(!darkMode)
+              }
+              className="p-3 rounded-full border border-white/20 bg-white/10"
             >
-              Loading...
-            </motion.h1>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {darkMode ? (
+                <Sun size={18} />
+              ) : (
+                <Moon size={18} />
+              )}
+            </motion.button>
 
-      {/* ✅ Navbar */}
-      <motion.div
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 w-full flex justify-between items-center px-6 py-5 bg-white/5 backdrop-blur-xl z-40"
-      >
-        <h1 className="font-bold text-xl">
-          UTTEJKUMAR
-        </h1>
+          </div>
 
-        <div className="flex items-center gap-6">
-          <a href="#skills" className="hover:text-blue-400">
-            Skills
-          </a>
-
-          <a href="#projects" className="hover:text-blue-400">
-            Projects
-          </a>
-
-          <a href="#contact" className="hover:text-blue-400">
-            Contact
-          </a>
-
-          {/* ✅ Dark Light Toggle */}
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-full bg-blue-500"
-          >
-            {darkMode ? (
-              <Sun size={18} />
-            ) : (
-              <Moon size={18} />
-            )}
-          </button>
         </div>
-      </motion.div>
 
-      {/* ✅ Hero Section */}
-      <section className="min-h-screen flex flex-col justify-center items-center text-center px-6">
-        <motion.h1
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-6xl md:text-8xl font-bold"
-        >
-          Build. Create. Inspire 🚀
-        </motion.h1>
+      </nav>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="mt-5 text-blue-400 text-2xl"
-        >
-          {text}
-        </motion.p>
+      {/* ✅ HERO */}
 
-        {/* ✅ Apple Style Floating Glow */}
-        <motion.div
-          animate={{
-            y: [0, -20, 0],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 4,
-          }}
-          className="mt-16 w-40 h-40 rounded-full bg-blue-500/20 blur-3xl"
-        />
+      <section className="min-h-screen flex items-center justify-center px-6 text-center">
+
+        <Glass className="p-12 max-w-5xl">
+
+          {/* ======================================================
+    ✅ PROFILE IMAGE
+====================================================== */}
+
+<motion.img
+
+  src="/profile.jpg"
+
+  alt="profile"
+
+  className="
+    w-44
+    h-44
+    rounded-full
+    mx-auto
+    object-cover
+
+    border-4
+    border-cyan-400
+
+    shadow-[0_0_40px_rgba(34,211,238,0.6)]
+
+    hover:scale-105
+    transition-all
+    duration-500
+  "
+
+  animate={{
+
+    y: [0, -10, 0],
+
+    scale: [1, 1.03, 1],
+
+    rotate: [0, 1, -1, 0],
+  }}
+
+  transition={{
+
+    duration: 4,
+
+    repeat: Infinity,
+
+    ease: "easeInOut",
+  }}
+/>
+
+          <h1 className="mt-8 text-6xl md:text-8xl font-black bg-gradient-to-r from-cyan-300 via-white to-blue-400 bg-clip-text text-transparent">
+            UTTEJKUMAR
+          </h1>
+
+          <p className="mt-6 text-2xl text-cyan-300 h-10">
+            {text}
+          </p>
+
+        </Glass>
+
       </section>
 
-      {/* ✅ Skills */}
+      {/* ✅ SKILLS */}
+
       <section
         id="skills"
-        className="py-20 px-6 text-center"
+        className="py-24 px-6"
       >
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold mb-10"
-        >
-          Skills
-        </motion.h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {skills.map((skill, index) => (
-            <motion.div
+        <h2 className="text-5xl font-black text-center mb-20">
+          Skills
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+          {skills.map((skill) => (
+
+            <Glass
               key={skill}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: index * 0.1,
-              }}
+              className="p-8 text-center text-xl font-semibold"
             >
-              <Glass>
-                {skill}
-              </Glass>
-            </motion.div>
+              {skill}
+            </Glass>
+
           ))}
+
         </div>
+
       </section>
 
-      {/* ✅ Projects */}
+      {/* ✅ PROJECTS */}
+
       <section
         id="projects"
-        className="py-20 px-6 text-center"
+        className="py-24 px-6"
       >
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold mb-10"
-        >
-          Projects
-        </motion.h2>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {projects.map((project, index) => (
+        <h2 className="text-5xl font-black text-center mb-20">
+          Projects
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-10">
+
+          {projects.map((project) => (
+
             <motion.div
               key={project.title}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: index * 0.2,
-              }}
-              whileHover={{ scale: 1.03 }}
               onClick={() =>
                 setSelectedProject(project)
               }
-              className="group rounded-3xl overflow-hidden cursor-pointer bg-white/5"
             >
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-60 object-cover group-hover:scale-110 transition duration-500"
-              />
 
-              <div className="p-5">
-                <h3 className="text-2xl font-bold">
-                  {project.title}
-                </h3>
+              <Glass className="overflow-hidden cursor-pointer">
 
-                <p className="text-gray-400 mt-2">
-                  {project.desc}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+                {/* ======================================================
+    ✅ PROFILE IMAGE
+====================================================== */}
 
-      {/* ✅ Popup */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 p-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ scale: 0.7 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.7 }}
-              className="bg-zinc-900 rounded-3xl overflow-hidden max-w-2xl w-full"
-            >
-              <img
-                src={selectedProject.image}
-                alt={selectedProject.title}
-                className="w-full h-72 object-cover"
-              />
+<motion.img
 
-              <div className="p-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-bold text-white">
-                    {selectedProject.title}
-                  </h2>
+  src="/profile.jpg"
 
-                  <button
-                    onClick={() =>
-                      setSelectedProject(null)
-                    }
-                    className="bg-red-500 p-2 rounded-full"
-                  >
-                    <X size={18} />
-                  </button>
+  alt="Profile"
+
+  className="
+    w-44
+    h-44
+    rounded-full
+    mx-auto
+    object-cover
+    border-4
+    border-cyan-400
+    shadow-[0_0_40px_rgba(34,211,238,0.5)]
+  "
+
+  animate={{
+
+    y: [0, -10, 0],
+
+    scale: [1, 1.03, 1],
+  }}
+
+  transition={{
+
+    duration: 4,
+
+    repeat: Infinity,
+
+    ease: "easeInOut",
+  }}
+/>
+
+                <div className="p-6">
+
+                  <h3 className="text-3xl font-bold">
+                    {project.title}
+                  </h3>
+
+                  <p className="mt-4 text-gray-300">
+                    {project.desc}
+                  </p>
+
                 </div>
 
-                <p className="text-gray-300 mt-4">
-                  {selectedProject.desc}
-                </p>
-              </div>
+              </Glass>
+
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* ✅ Contact */}
+          ))}
+
+        </div>
+
+      </section>
+{/* ======================================================
+          ✅ BEYOND CODING
+      ====================================================== */}
+
       <section
-        id="contact"
-        className="py-20 px-6 text-center"
+        id="beyond"
+        className="py-24 px-6"
       >
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold mb-10"
-        >
-          Contact
-        </motion.h2>
 
-        <Glass className="max-w-xl mx-auto">
-          <form onSubmit={sendEmail}>
-            <input
-              type="text"
-              name="user_name"
-              placeholder="Name"
-              className="w-full mb-4 p-3 rounded bg-black/20"
-              required
-            />
+        <h2 className="text-5xl font-black text-center mb-20">
+          Beyond Coding ✨
+        </h2>
 
-            <input
-              type="email"
-              name="user_email"
-              placeholder="Email"
-              className="w-full mb-4 p-3 rounded bg-black/20"
-              required
-            />
+        <div className="grid lg:grid-cols-2 gap-10 max-w-7xl mx-auto">
 
-            <textarea
-              name="message"
-              placeholder="Message"
-              rows={5}
-              className="w-full mb-4 p-3 rounded bg-black/20"
-              required
-            />
+          {/* ✅ LIVE STATUS */}
+          <Glass className="p-10">
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-blue-500 px-6 py-3 rounded-xl w-full"
-            >
-              Send Message
-            </motion.button>
-          </form>
+            <h3 className="text-3xl font-bold mb-10">
+              Live Status
+            </h3>
 
-          <p className="mt-6 text-blue-400">
-            yourgmail@gmail.com
-          </p>
-        </Glass>
+            <div className="space-y-5">
+
+              <motion.div
+                whileHover={{
+                  x: 10,
+                }}
+                className="p-5 rounded-2xl bg-white/5 border border-white/10"
+              >
+                💻 Building futuristic UI
+              </motion.div>
+
+              <motion.div
+                whileHover={{
+                  x: 10,
+                }}
+                className="p-5 rounded-2xl bg-white/5 border border-white/10"
+              >
+                🚀 Exploring motion design
+              </motion.div>
+
+              <motion.div
+                whileHover={{
+                  x: 10,
+                }}
+                className="p-5 rounded-2xl bg-white/5 border border-white/10"
+              >
+                🎧 Music + Coffee + Coding
+              </motion.div>
+
+            </div>
+
+          </Glass>
+
+          {/* ✅ TECH UNIVERSE */}
+          <Glass className="p-10 flex flex-col items-center">
+
+            <h3 className="text-3xl font-bold mb-10">
+              Tech Universe
+            </h3>
+
+            <div className="relative w-[320px] h-[320px]">
+
+              <motion.div
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 20,
+                  ease: "linear",
+                }}
+                className="absolute inset-0"
+              >
+
+                {[
+                  "⚛️",
+                  "🔥",
+                  "💻",
+                  "🚀",
+                  "🎨",
+                  "🧠",
+                ].map((icon, index) => (
+
+                  <div
+                    key={index}
+                    className="absolute text-4xl"
+                    style={{
+                      top: `${50 + 40 * Math.sin((index * Math.PI) / 3)}%`,
+                      left: `${50 + 40 * Math.cos((index * Math.PI) / 3)}%`,
+                    }}
+                  >
+                    {icon}
+                  </div>
+
+                ))}
+
+              </motion.div>
+
+              <motion.div
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                }}
+                className="absolute inset-24 rounded-full bg-cyan-500/20 backdrop-blur-3xl flex items-center justify-center text-5xl"
+              >
+                👨‍💻
+              </motion.div>
+
+            </div>
+
+          </Glass>
+
+        </div>
+
       </section>
 
-      {/* ✅ Footer */}
-      <footer className="text-center py-8 text-gray-400">
-        🚀 Premium Apple-Inspired Portfolio
+      {/* ======================================================
+          ✅ PROJECT POPUP
+      ====================================================== */}
+
+      <AnimatePresence>
+
+        {selectedProject && (
+
+          <motion.div
+            className="fixed inset-0 bg-black/80 backdrop-blur-xl flex justify-center items-center z-50 p-6"
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+          >
+
+            <Glass className="max-w-3xl w-full p-10">
+
+              <div className="flex justify-between items-center mb-8">
+
+                <h2 className="text-4xl font-bold">
+                  {selectedProject.title}
+                </h2>
+
+                <button
+                  onClick={() =>
+                    setSelectedProject(null)
+                  }
+                  className="p-3 rounded-full bg-red-500/20"
+                >
+                  <X />
+                </button>
+
+              </div>
+
+              <p className="text-lg leading-9 text-gray-300">
+                {selectedProject.desc}
+              </p>
+
+            </Glass>
+
+          </motion.div>
+
+        )}
+
+      </AnimatePresence>
+
+      {/* ======================================================
+          ✅ AI CHATBOT
+      ====================================================== */}
+
+      <>
+        {/* ✅ FLOATING BUTTON */}
+
+        <motion.div
+          drag
+          whileHover={{
+            scale: 1.1,
+          }}
+          className="fixed bottom-8 right-8 z-50 cursor-pointer"
+          onClick={() =>
+            setAiOpen(true)
+          }
+        >
+
+          <div className="w-16 h-16 rounded-full bg-cyan-500 flex items-center justify-center text-3xl shadow-2xl">
+            🤖
+          </div>
+
+        </motion.div>
+
+        {/* ✅ CHAT WINDOW */}
+
+        <AnimatePresence>
+
+          {aiOpen && (
+
+            <motion.div
+
+              ref={aiRef}
+
+              drag
+              dragMomentum={false}
+
+              initial={{
+                opacity: 0,
+                scale: 0.8,
+                y: 80,
+              }}
+
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+
+              exit={{
+                opacity: 0,
+                scale: 0.8,
+                y: 80,
+              }}
+
+              className="fixed bottom-28 right-8 w-[380px] max-w-[95vw] z-50"
+            >
+
+              <Glass
+                className={`p-4 flex flex-col ${
+                  minimized
+                    ? "h-[70px]"
+                    : "h-[520px]"
+                }`}
+              >
+
+                {/* ✅ HEADER */}
+
+                <div className="flex justify-between items-center mb-4">
+
+                  <div>
+
+                    <h2 className="font-bold text-xl">
+                      AI Assistant
+                    </h2>
+
+                    <p className="text-xs text-cyan-300">
+                      GPT Powered Assistant
+                    </p>
+
+                  </div>
+
+                  <div className="flex gap-2">
+
+                    <button
+                      onClick={() =>
+                        setMinimized(!minimized)
+                      }
+                      className="p-2 rounded-full bg-yellow-500/20"
+                    >
+                      <Minus size={16} />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setAiOpen(false)
+                      }
+                      className="p-2 rounded-full bg-red-500/20"
+                    >
+                      <X size={16} />
+                    </button>
+
+                  </div>
+
+                </div>
+
+                {!minimized && (
+                  <>
+                    {/* ✅ CHAT AREA */}
+
+                    <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+
+                      {messages.map(
+                        (msg, index) => (
+
+                          <div
+                            key={index}
+                            className={`flex ${
+                              msg.role === "user"
+                                ? "justify-end"
+                                : "justify-start"
+                            }`}
+                          >
+
+                            <div
+                              className={`
+                                max-w-[80%]
+                                px-4
+                                py-3
+                                rounded-2xl
+                                text-sm
+                                leading-6
+                                ${
+                                  msg.role === "user"
+                                    ? "bg-cyan-500"
+                                    : "bg-white/10"
+                                }
+                              `}
+                            >
+                              {msg.content}
+                            </div>
+
+                          </div>
+
+                        )
+                      )}
+
+                      {/* ✅ TYPING */}
+
+                      {typing && (
+
+                        <div className="flex gap-1">
+
+                          <motion.div
+                            animate={{
+                              y: [0, -5, 0],
+                            }}
+                            transition={{
+                              repeat: Infinity,
+                              duration: 0.5,
+                            }}
+                            className="w-2 h-2 rounded-full bg-cyan-400"
+                          />
+
+                          <motion.div
+                            animate={{
+                              y: [0, -5, 0],
+                            }}
+                            transition={{
+                              repeat: Infinity,
+                              duration: 0.6,
+                            }}
+                            className="w-2 h-2 rounded-full bg-cyan-400"
+                          />
+
+                          <motion.div
+                            animate={{
+                              y: [0, -5, 0],
+                            }}
+                            transition={{
+                              repeat: Infinity,
+                              duration: 0.7,
+                            }}
+                            className="w-2 h-2 rounded-full bg-cyan-400"
+                          />
+
+                        </div>
+
+                      )}
+
+                      {/* ✅ AUTO SCROLL */}
+
+                      <div ref={messagesEndRef} />
+
+                    </div>
+
+                    {/* ✅ INPUT */}
+
+                    <div className="mt-4 flex gap-2">
+
+                      <input
+                        value={input}
+                        onChange={(e) =>
+                          setInput(e.target.value)
+                        }
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter"
+                          ) {
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Ask something..."
+                        className="flex-1 px-4 py-3 rounded-2xl bg-white/10 border border-white/10 outline-none"
+                      />
+
+                      {/* ✅ VOICE */}
+
+                      <button
+                        onClick={startVoice}
+                        className={`px-4 rounded-2xl transition-all ${
+                          listening
+                            ? "bg-red-500 animate-pulse"
+                            : "bg-white/10"
+                        }`}
+                      >
+                        <Mic size={18} />
+                      </button>
+
+                      {/* ✅ SEND */}
+
+                      <motion.button
+                        whileHover={{
+                          scale: 1.05,
+                        }}
+                        whileTap={{
+                          scale: 0.95,
+                        }}
+                        onClick={sendMessage}
+                        disabled={loading}
+                        className="px-5 py-3 rounded-2xl bg-cyan-500"
+                      >
+                        <Send size={18} />
+                      </motion.button>
+
+                    </div>
+                  </>
+                )}
+
+              </Glass>
+
+            </motion.div>
+
+          )}
+
+        </AnimatePresence>
+      </>
+
+      {/* ✅ FOOTER */}
+
+      <footer className="py-10 text-center text-gray-400">
+        © 2026 UTTEJKUMAR • AI Portfolio 🚀
       </footer>
+
     </div>
   );
 }
