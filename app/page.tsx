@@ -674,51 +674,18 @@ export default function Portfolio() {
 
         <Glass className="p-12 max-w-5xl">
 
-          {/* ======================================================
-    ✅ PROFILE IMAGE
-====================================================== */}
-
-<motion.img
-
-  src="/profile.jpg"
-
-  alt="profile"
-
-  className="
-    w-44
-    h-44
-    rounded-full
-    mx-auto
-    object-cover
-
-    border-4
-    border-cyan-400
-
-    shadow-[0_0_40px_rgba(34,211,238,0.6)]
-
-    hover:scale-105
-    transition-all
-    duration-500
-  "
-
-  animate={{
-
-    y: [0, -10, 0],
-
-    scale: [1, 1.03, 1],
-
-    rotate: [0, 1, -1, 0],
-  }}
-
-  transition={{
-
-    duration: 4,
-
-    repeat: Infinity,
-
-    ease: "easeInOut",
-  }}
-/>
+          <motion.img
+            src="https://api.dicebear.com/7.x/adventurer/svg?seed=Uttej"
+            alt="avatar"
+            className="w-40 h-40 rounded-full mx-auto border-4 border-cyan-400"
+            animate={{
+              y: [0, -10, 0],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+            }}
+          />
 
           <h1 className="mt-8 text-6xl md:text-8xl font-black bg-gradient-to-r from-cyan-300 via-white to-blue-400 bg-clip-text text-transparent">
             UTTEJKUMAR
@@ -784,43 +751,14 @@ export default function Portfolio() {
 
               <Glass className="overflow-hidden cursor-pointer">
 
-                {/* ======================================================
-    ✅ PROFILE IMAGE
-====================================================== */}
-
-<motion.img
-
-  src="/profile.jpg"
-
-  alt="Profile"
-
-  className="
-    w-44
-    h-44
-    rounded-full
-    mx-auto
-    object-cover
-    border-4
-    border-cyan-400
-    shadow-[0_0_40px_rgba(34,211,238,0.5)]
-  "
-
-  animate={{
-
-    y: [0, -10, 0],
-
-    scale: [1, 1.03, 1],
-  }}
-
-  transition={{
-
-    duration: 4,
-
-    repeat: Infinity,
-
-    ease: "easeInOut",
-  }}
-/>
+                <motion.img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-72 object-cover"
+                  whileHover={{
+                    scale: 1.05,
+                  }}
+                />
 
                 <div className="p-6">
 

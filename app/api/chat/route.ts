@@ -1,25 +1,113 @@
+// ======================================================
+// ✅ IMPORTS
+// ======================================================
+
 import Groq from "groq-sdk";
 
+import resumeData from "@/data/resume";
+
+// ======================================================
+// ✅ GROQ CONFIG
+// ======================================================
+
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY!,
+  apiKey: process.env.GROQ_API_KEY,
 });
 
-export async function POST(req: Request) {
-  try {
-    const { message } = await req.json();
+// ======================================================
+// ✅ API ROUTE
+// ======================================================
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.1-70b-versatile",
-      messages: [{ role: "user", content: message }],
-    });
+export async function POST(
+  req: Request
+) {
+
+  try {
+
+    // ✅ GET REQUEST BODY
+    const body =
+      await req.json();
+
+    // ======================================================
+    // ✅ GROQ AI REQUEST
+    // ======================================================
+
+    const completion =
+      await groq.chat.completions.create({
+
+        model: "llama3-8b-8192",
+
+        messages: [
+
+          // ✅ SYSTEM PROMPT
+
+          {
+            role: "system",
+
+            content: `
+              You are an AI Portfolio Assistant
+              for Uttej Kumar.
+
+              Use ONLY the following resume data
+              to answer questions.
+
+              Resume Data:
+              ${resumeData}
+
+              Rules:
+              - Be professional
+              - Keep answers concise
+              - Answer only from resume
+              - Do not generate fake information
+            `,
+          },
+
+          // ✅ CONVERSATION HISTORY
+
+          ...body.history,
+
+          // ✅ USER MESSAGE
+
+          {
+            role: "user",
+            content: body.message,
+          },
+        ],
+
+        temperature: 0.7,
+      });
+
+    // ======================================================
+    // ✅ RESPONSE
+    // ======================================================
 
     return Response.json({
-      reply: response.choices[0]?.message?.content,
-    });
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Server error";
 
-    return Response.json({ error: message }, { status: 500 });
+      reply:
+        completion.choices[0]
+          .message.content,
+
+    });
+
+  } catch (error: unknown) {
+
+    // ✅ ERROR LOGGING
+
+    if (error instanceof Error) {
+
+      console.log(
+        "Groq Error:",
+        error.message
+      );
+    }
+
+    // ✅ ERROR RESPONSE
+
+    return Response.json({
+
+      reply:
+        "❌ AI Backend Error",
+
+    });
   }
 }
