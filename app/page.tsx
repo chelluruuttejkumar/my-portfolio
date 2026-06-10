@@ -24,6 +24,13 @@ import {
 
 import emailjs from "emailjs-com";
 
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 // ======================================================
 // GLASS COMPONENT
 // ======================================================
@@ -470,10 +477,9 @@ const startVoice = () => {
   try {
 
     // @ts-ignore
-    const SpeechRecognition =
-      window.SpeechRecognition ||
-      // @ts-ignore
-      window.webkitSpeechRecognition;
+  const SpeechRecognition =
+  (window as any).SpeechRecognition ||
+  (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       alert(
