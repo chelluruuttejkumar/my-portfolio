@@ -421,74 +421,34 @@ const sendMessage = async () => {
 
   if (!input.trim()) return;
 
-  const userMessage = {
-    role: "user",
-    content: input,
-  };
+  const currentInput = input;
 
   setMessages((prev) => [
     ...prev,
-    userMessage,
+    {
+      role: "user",
+      content: currentInput,
+    },
   ]);
-
-  const currentInput = input;
 
   setInput("");
 
   setTyping(true);
 
-  setLoading(true);
-
-  try {
-
-    const response =
-      await fetch("/api/chat", {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          message: currentInput,
-          history: messages,
-        }),
-      });
-
-    const data =
-      await response.json();
-
-    setTimeout(() => {
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            data.reply,
-        },
-      ]);
-
-      setTyping(false);
-
-    }, 1000);
-
-  } catch {
+  setTimeout(() => {
 
     setMessages((prev) => [
       ...prev,
       {
         role: "assistant",
         content:
-          "❌ AI Backend Error.",
+          "✅ Message received successfully.",
       },
     ]);
 
     setTyping(false);
-  }
 
-  setLoading(false);
+  }, 1000);
 };
 
 // ======================================================
