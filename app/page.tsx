@@ -416,13 +416,22 @@ export default function Portfolio() {
   // ======================================================
 // SEND MESSAGE
 // ======================================================
+const sendMessage = () => {
 
-const sendMessage = async () => {
+  alert("✅ sendMessage triggered");
 
-  if (!input.trim()) return;
+  if (!input.trim()) {
+
+    alert("❌ Input is empty");
+
+    return;
+  }
 
   const currentInput = input;
 
+  alert("✅ User Input: " + currentInput);
+
+  // USER MESSAGE
   setMessages((prev) => [
     ...prev,
     {
@@ -431,11 +440,16 @@ const sendMessage = async () => {
     },
   ]);
 
+  alert("✅ User message added");
+
   setInput("");
 
   setTyping(true);
 
+  // AI RESPONSE
   setTimeout(() => {
+
+    alert("✅ AI response started");
 
     setMessages((prev) => [
       ...prev,
@@ -445,6 +459,8 @@ const sendMessage = async () => {
           "✅ Message received successfully.",
       },
     ]);
+
+    alert("✅ AI response added");
 
     setTyping(false);
 
