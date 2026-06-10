@@ -156,35 +156,47 @@ export default function Portfolio() {
   };
 
   const sendEmail = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+  e: React.FormEvent<HTMLFormElement>
+) => {
 
-    try {
-      await emailjs.send(
-        "service_atyalxg",
-        "template_052cwpr",
-        {
-          user_name: formData.user_name,
-          user_email: formData.user_email,
-          message: formData.message,
-        },
-        "qDxulvQQBkObSX-lb"
-      );
+  e.preventDefault();
 
-      alert("✅ Message Sent Successfully!");
+  alert("✅ Send Email Triggered");
 
-      setFormData({
-        user_name: "",
-        user_email: "",
-        message: "",
-      });
+  try {
 
-    } catch (error) {
-      console.error(error);
-      alert("❌ Failed To Send Message");
-    }
-  };
+    alert("✅ Calling EmailJS");
+
+    const response = await emailjs.send(
+      "service_atyalxg",
+      "template_052cwpr",
+      {
+        user_name: formData.user_name,
+        user_email: formData.user_email,
+        message: formData.message,
+      },
+      "qDxulvQQBkObSX-lb"
+    );
+
+    console.log(response);
+
+    alert("✅ Message Sent Successfully!");
+
+    setFormData({
+      user_name: "",
+      user_email: "",
+      message: "",
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "❌ Failed To Send Message. Check console."
+    );
+  }
+};
 
   // ======================================================
   // AI CHAT STATES
