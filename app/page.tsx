@@ -434,77 +434,53 @@ const sendEmail = async (
 // ======================================================
 const sendMessage = () => {
 
-  if (!input.trim()) return;
+  alert("✅ sendMessage triggered");
 
-  const currentInput =
-    input.toLowerCase();
+  if (!input.trim()) {
 
+    alert("❌ Input is empty");
+
+    return;
+  }
+
+  const currentInput = input;
+
+  alert("✅ User Input: " + currentInput);
+
+  // USER MESSAGE
   setMessages((prev) => [
     ...prev,
     {
       role: "user",
-      content: input,
+      content: currentInput,
     },
   ]);
+
+  alert("✅ User message added");
 
   setInput("");
 
   setTyping(true);
 
+  // AI RESPONSE
   setTimeout(() => {
 
-    let reply =
-      "I'm your local portfolio assistant 🚀";
-
-    // STATIC LOCAL RESPONSES
-
-    if (
-      currentInput.includes("skills")
-    ) {
-
-      reply =
-        "Uttej specializes in ReactJS, Java, TypeScript, Tailwind CSS and Framer Motion.";
-
-    } else if (
-      currentInput.includes("project")
-    ) {
-
-      reply =
-        "Major projects include BankingDomain, AI Portfolio, Spotify Clone and Calculator App.";
-
-    } else if (
-      currentInput.includes("experience")
-    ) {
-
-      reply =
-        "Experienced in frontend development, animations and enterprise banking applications.";
-
-    } else if (
-      currentInput.includes("contact")
-    ) {
-
-      reply =
-        "You can contact Uttej using the contact form below.";
-
-    } else if (
-      currentInput.includes("resume")
-    ) {
-
-      reply =
-        "Resume download feature can be added soon 🚀";
-    }
+    alert("✅ AI response started");
 
     setMessages((prev) => [
       ...prev,
       {
         role: "assistant",
-        content: reply,
+        content:
+          "✅ Message received successfully.",
       },
     ]);
 
+    alert("✅ AI response added");
+
     setTyping(false);
 
-  }, 800);
+  }, 1000);
 };
 
 // ======================================================
@@ -701,72 +677,63 @@ return (
   </nav>
 
   {/* HERO */}
-<section className="min-h-screen flex items-center px-6">
 
-  <div className="grid lg:grid-cols-2 gap-10 items-center w-full max-w-7xl mx-auto">
+  <section className="min-h-screen flex items-center justify-center px-6 text-center">
 
-    {/* LEFT */}
-
-    <div>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-6xl md:text-8xl font-black leading-tight"
-      >
-        Hi, 
-        <span className="text-cyan-400">
-          {" "}UTTEJKUMAR
-        </span>
-      </motion.h1>
-
-      <p className="mt-6 text-2xl text-gray-300">
-        {text}
-      </p>
-
-      <p className="mt-6 text-lg leading-8 text-gray-400">
-        I build scalable and modern web applications
-        using React, TypeScript and AI-powered UI.
-      </p>
-
-      <div className="flex gap-5 mt-10">
-
-        <button className="px-8 py-4 rounded-full bg-cyan-500 font-semibold">
-          View My Work
-        </button>
-
-        <button className="px-8 py-4 rounded-full border border-white/20">
-          Contact Me
-        </button>
-
-      </div>
-
-    </div>
-
-    {/* RIGHT */}
-
-    <div className="relative flex justify-center">
+    <Glass className="p-12 max-w-5xl">
 
       <motion.img
         src="https://api.dicebear.com/7.x/adventurer/svg?seed=Uttej"
         alt="avatar"
-        className="w-[420px] rounded-[40px]"
+        className="w-40 h-40 rounded-full mx-auto border-4 border-cyan-400"
         animate={{
           y: [0, -10, 0],
         }}
         transition={{
-          duration: 4,
+          duration: 3,
           repeat: Infinity,
         }}
       />
 
-      <div className="absolute inset-0 bg-cyan-500/20 blur-[100px] -z-10" />
+      <h1 className="mt-8 text-6xl md:text-8xl font-black bg-gradient-to-r from-cyan-300 via-white to-blue-400 bg-clip-text text-transparent">
+        UTTEJKUMAR
+      </h1>
+
+      <p className="mt-6 text-2xl text-cyan-300 h-10">
+        {text}
+      </p>
+
+    </Glass>
+
+  </section>
+
+  {/* SKILLS */}
+
+  <section
+    id="skills"
+    className="py-24 px-6"
+  >
+
+    <h2 className="text-5xl font-black text-center mb-20">
+      Skills
+    </h2>
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+      {skills.map((skill) => (
+
+        <Glass
+          key={skill}
+          className="p-8 text-center text-xl font-semibold"
+        >
+          {skill}
+        </Glass>
+
+      ))}
 
     </div>
 
-  </div>
-
-</section>
+  </section>
   {/* ======================================================
     PROJECTS
 ====================================================== */}
@@ -1475,4 +1442,4 @@ return (
 
 </div>
 );
-}
+} 
