@@ -24,21 +24,34 @@ import {
 
 import emailjs from "emailjs-com";
 
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-  }
+// ======================================================
+// SPEECH RECOGNITION TYPES
+// ======================================================
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface CustomSpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: ((event: Event) => void) | null;
+  onspeechend: (() => void) | null;
+  onerror: (() => void) | null;
 }
 
 declare global {
   interface Window {
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: {
+      new (): CustomSpeechRecognition;
+    };
   }
 }
 
-const SpeechRecognition =
-  (window as any).SpeechRecognition ||
-  window.webkitSpeechRecognition;
+
 
 
 // ======================================================
@@ -481,15 +494,24 @@ const sendMessage = async () => {
 // ======================================================
 // VOICE INPUT
 // ======================================================
+// ======================================================
+// VOICE INPUT
+// ======================================================
 
 const startVoice = () => {
+
+  // Prevent SSR issues
+  if (typeof window === "undefined") return;
+
   try {
 
     const SpeechRecognition =
       window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
+
       alert("Speech Recognition not supported.");
+
       return;
     }
 
@@ -497,40 +519,54 @@ const startVoice = () => {
       new SpeechRecognition();
 
     recognition.continuous = false;
+
     recognition.interimResults = false;
+
     recognition.lang = "en-US";
 
     recognition.start();
 
     setListening(true);
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: Event) => {
+
+      const results = (
+        event.target as unknown as {
+          results: SpeechRecognitionResultList;
+        }
+      ).results;
 
       const transcript =
-        event.results[0][0].transcript;
+        results[0][0].transcript;
 
       setInput(transcript);
 
       setListening(false);
 
       setTimeout(() => {
+
         sendMessage();
+
       }, 500);
     };
 
     recognition.onspeechend = () => {
+
       recognition.stop();
+
       setListening(false);
     };
 
     recognition.onerror = () => {
+
       setListening(false);
     };
 
   } catch {
+
     setListening(false);
   }
-}; 
+};
 
 // ======================================================
 // UI START
@@ -639,6 +675,7 @@ return (
           ) : (
             <Moon size={18} />
           )}
+          
         </motion.button>
 
       </div>
@@ -1124,7 +1161,15 @@ return (
               >
 
                 {messages.map(
-                  (msg: any, index) => (
+                 
+(
+  msg: {
+    role: string;
+    content: string;
+  },
+  index: number
+) =>
+ (
 
                     <div
                       key={index}
@@ -1405,3 +1450,4 @@ return (
 
 </div>
 );
+}
