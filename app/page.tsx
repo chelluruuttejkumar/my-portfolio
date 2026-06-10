@@ -26,10 +26,20 @@ import emailjs from "emailjs-com";
 
 declare global {
   interface Window {
-    SpeechRecognition: any;
     webkitSpeechRecognition: any;
   }
 }
+
+declare global {
+  interface Window {
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
+
+const SpeechRecognition =
+  (window as any).SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
 
 // ======================================================
 // GLASS COMPONENT
@@ -403,7 +413,7 @@ const sendMessage = async () => {
     content: input,
   };
 
-  setMessages((prev: any) => [
+  setMessages((prev) => [
     ...prev,
     userMessage,
   ]);
@@ -438,7 +448,7 @@ const sendMessage = async () => {
 
     setTimeout(() => {
 
-      setMessages((prev: any) => [
+      setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
@@ -453,7 +463,7 @@ const sendMessage = async () => {
 
   } catch {
 
-    setMessages((prev: any) => [
+    setMessages((prev) => [
       ...prev,
       {
         role: "assistant",
@@ -473,75 +483,54 @@ const sendMessage = async () => {
 // ======================================================
 
 const startVoice = () => {
-
   try {
 
-    // @ts-ignore
-  const SpeechRecognition =
-  (window as any).SpeechRecognition ||
-  (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert(
-        "Speech Recognition not supported."
-      );
+      alert("Speech Recognition not supported.");
       return;
     }
 
     const recognition =
       new SpeechRecognition();
 
-    recognition.continuous =
-      false;
-
-    recognition.interimResults =
-      false;
-
-    recognition.lang =
-      "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
 
     recognition.start();
 
     setListening(true);
 
-    recognition.onresult =
-      (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
 
-        const transcript =
-          event.results[0][0]
-            .transcript;
+      const transcript =
+        event.results[0][0].transcript;
 
-        setInput(transcript);
+      setInput(transcript);
 
-        setListening(false);
+      setListening(false);
 
-        setTimeout(() => {
+      setTimeout(() => {
+        sendMessage();
+      }, 500);
+    };
 
-          sendMessage();
+    recognition.onspeechend = () => {
+      recognition.stop();
+      setListening(false);
+    };
 
-        }, 500);
-
-      };
-
-    recognition.onspeechend =
-      () => {
-
-        recognition.stop();
-
-        setListening(false);
-      };
-
-    recognition.onerror =
-      () => {
-
-        setListening(false);
-      };
+    recognition.onerror = () => {
+      setListening(false);
+    };
 
   } catch {
-
     setListening(false);
   }
-};
+}; 
 
 // ======================================================
 // UI START
@@ -1416,4 +1405,3 @@ return (
 
 </div>
 );
-}
