@@ -155,7 +155,7 @@ export default function Portfolio() {
     });
   };
 
-  const sendEmail = async (
+const sendEmail = async (
   e: React.FormEvent<HTMLFormElement>
 ) => {
 
@@ -165,10 +165,8 @@ export default function Portfolio() {
 
   try {
 
-    alert("✅ Calling EmailJS");
-
     const response = await emailjs.send(
-      "service_atyalxg",
+      "service_y0glh5h",
       "template_052cwpr",
       {
         user_name: formData.user_name,
@@ -188,13 +186,19 @@ export default function Portfolio() {
       message: "",
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
 
     console.error(error);
 
-    alert(
-      "❌ Failed To Send Message. Check console."
-    );
+    if (error instanceof Error) {
+
+      alert("❌ Error: " + error.message);
+
+    } else {
+
+      alert("❌ Failed To Send Message");
+
+    }
   }
 };
 
