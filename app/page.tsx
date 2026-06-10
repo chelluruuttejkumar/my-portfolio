@@ -287,7 +287,7 @@ const sendEmail = async (
       title: "Portfolio",
       desc:
         "Futuristic glassmorphism portfolio with AI assistant integration.",
-      image: "/p2.jpg",
+      image: "/P2.jpg",
     },
 
     {
@@ -856,15 +856,21 @@ return (
       "
     >
 
-      Passionate Software Engineer specializing in
-      ReactJS, TypeScript, Java and modern frontend
-      technologies with experience in building scalable,
-      responsive and visually engaging web applications.
+Passionate Software Engineer with experience in
+enterprise banking applications and modern frontend
+technologies including ReactJS, TypeScript and Java.
 
-      Skilled in developing futuristic UI/UX experiences,
-      AI-powered features, animations and enterprise-level
-      banking applications with strong focus on
-      performance, clean code and user-centric design.
+Skilled in developing secure, scalable and responsive
+banking solutions with focus on digital banking,
+user experience, performance optimization and
+enterprise-grade application development.
+
+Experienced in working on FEBA (Finacle E-Banking Application)
+platforms, building interactive UI components,
+enhancing customer banking journeys and delivering
+high-quality solutions for banking domain projects
+
+.
 
     </motion.p>
 
