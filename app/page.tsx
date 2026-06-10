@@ -434,53 +434,77 @@ const sendEmail = async (
 // ======================================================
 const sendMessage = () => {
 
-  alert("✅ sendMessage triggered");
+  if (!input.trim()) return;
 
-  if (!input.trim()) {
+  const currentInput =
+    input.toLowerCase();
 
-    alert("❌ Input is empty");
-
-    return;
-  }
-
-  const currentInput = input;
-
-  alert("✅ User Input: " + currentInput);
-
-  // USER MESSAGE
   setMessages((prev) => [
     ...prev,
     {
       role: "user",
-      content: currentInput,
+      content: input,
     },
   ]);
-
-  alert("✅ User message added");
 
   setInput("");
 
   setTyping(true);
 
-  // AI RESPONSE
   setTimeout(() => {
 
-    alert("✅ AI response started");
+    let reply =
+      "I'm your local portfolio assistant 🚀";
+
+    // STATIC LOCAL RESPONSES
+
+    if (
+      currentInput.includes("skills")
+    ) {
+
+      reply =
+        "Uttej specializes in ReactJS, Java, TypeScript, Tailwind CSS and Framer Motion.";
+
+    } else if (
+      currentInput.includes("project")
+    ) {
+
+      reply =
+        "Major projects include BankingDomain, AI Portfolio, Spotify Clone and Calculator App.";
+
+    } else if (
+      currentInput.includes("experience")
+    ) {
+
+      reply =
+        "Experienced in frontend development, animations and enterprise banking applications.";
+
+    } else if (
+      currentInput.includes("contact")
+    ) {
+
+      reply =
+        "You can contact Uttej using the contact form below.";
+
+    } else if (
+      currentInput.includes("resume")
+    ) {
+
+      reply =
+        "Resume download feature can be added soon 🚀";
+    }
 
     setMessages((prev) => [
       ...prev,
       {
         role: "assistant",
-        content:
-          "✅ Message received successfully.",
+        content: reply,
       },
     ]);
 
-    alert("✅ AI response added");
-
     setTyping(false);
 
-  }, 1000);
+  }, 800);
 };
 
 // ======================================================
@@ -522,25 +546,78 @@ const startVoice = () => {
 
     recognition.onresult = (event: Event) => {
 
-      const results = (
-        event.target as unknown as {
-          results: SpeechRecognitionResultList;
-        }
-      ).results;
+  const speechEvent =
+    event as unknown as SpeechRecognitionEvent;
 
-      const transcript =
-        results[0][0].transcript;
+  const transcript =
+    speechEvent.results[0][0].transcript;
 
-      setInput(transcript);
+  alert("Voice Captured: " + transcript);
 
-      setListening(false);
+  setInput(transcript);
 
-      setTimeout(() => {
+  setListening(false);
 
-        sendMessage();
+  // USER MESSAGE
+  setMessages((prev) => [
+    ...prev,
+    {
+      role: "user",
+      content: transcript,
+    },
+  ]);
 
-      }, 500);
-    };
+  setTyping(true);
+
+  setTimeout(() => {
+
+    let reply =
+      "I'm your local portfolio assistant 🚀";
+
+    const currentInput =
+      transcript.toLowerCase();
+
+    if (
+      currentInput.includes("skills")
+    ) {
+
+      reply =
+        "Uttej specializes in ReactJS, Java, TypeScript, Tailwind CSS and Framer Motion.";
+
+    } else if (
+      currentInput.includes("project")
+    ) {
+
+      reply =
+        "Major projects include BankingDomain, AI Portfolio, Spotify Clone and Calculator App.";
+
+    } else if (
+      currentInput.includes("experience")
+    ) {
+
+      reply =
+        "Experienced in frontend development and enterprise banking applications.";
+
+    } else if (
+      currentInput.includes("contact")
+    ) {
+
+      reply =
+        "You can contact Uttej using the contact form below.";
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: reply,
+      },
+    ]);
+
+    setTyping(false);
+
+  }, 800);
+};
 
     recognition.onspeechend = () => {
 
@@ -734,6 +811,109 @@ return (
     </div>
 
   </section>
+
+{/* ======================================================
+    PROFESSIONAL SUMMARY
+====================================================== */}
+
+<section
+  id="summary"
+  className="py-24 px-6"
+>
+
+  <Glass className="max-w-6xl mx-auto p-10">
+
+    <motion.h2
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="
+        text-5xl
+        md:text-6xl
+        font-black
+        text-center
+        mb-10
+        bg-gradient-to-r
+        from-cyan-300
+        to-blue-400
+        bg-clip-text
+        text-transparent
+      "
+    >
+      Professional Summary
+    </motion.h2>
+
+    <motion.p
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ delay: 0.2 }}
+      className="
+        text-lg
+        md:text-xl
+        leading-10
+        text-center
+        text-gray-300
+      "
+    >
+
+      Passionate Software Engineer specializing in
+      ReactJS, TypeScript, Java and modern frontend
+      technologies with experience in building scalable,
+      responsive and visually engaging web applications.
+
+      Skilled in developing futuristic UI/UX experiences,
+      AI-powered features, animations and enterprise-level
+      banking applications with strong focus on
+      performance, clean code and user-centric design.
+
+    </motion.p>
+
+    {/* STATS */}
+
+    <div className="grid md:grid-cols-3 gap-8 mt-14">
+
+      <Glass className="p-6 text-center">
+
+        <h3 className="text-4xl font-black text-cyan-400">
+          2+
+        </h3>
+
+        <p className="mt-3 text-gray-300">
+          Years Learning & Building
+        </p>
+
+      </Glass>
+
+      <Glass className="p-6 text-center">
+
+        <h3 className="text-4xl font-black text-cyan-400">
+          10+
+        </h3>
+
+        <p className="mt-3 text-gray-300">
+          Projects Created
+        </p>
+
+      </Glass>
+
+      <Glass className="p-6 text-center">
+
+        <h3 className="text-4xl font-black text-cyan-400">
+          100%
+        </h3>
+
+        <p className="mt-3 text-gray-300">
+          Passion For Development
+        </p>
+
+      </Glass>
+
+    </div>
+
+  </Glass>
+
+</section>
+
   {/* ======================================================
     PROJECTS
 ====================================================== */}
